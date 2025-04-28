@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leather Backpack Collection</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    header {
+      text-align: center;
+      background-color: #a8dadc; /* Soft teal */
+      color: #1d3557; /* Deep blue */
+      padding: 1rem 0;
+    }
+
+    body {
+      background-color: #f1faee; /* Light mint */
+      color: #457b9d; /* Muted blue */
+    }
+
+    .home a {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #457b9d; /* Muted blue */
+      color: white;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+
+    .home a:hover {
+      background-color: #1d3557; /* Deep blue */
+    }
+
+    footer {
+      background-color: #a8dadc; /* Soft teal */
+      color: #1d3557; /* Deep blue */
+    }
+
+    .card {
+      background-color: #ffffff; /* White */
+      border: 1px solid #e0e0e0; /* Light gray */
+      border-radius: 1rem;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card img {
+      border-bottom: 1px solid #e0e0e0; /* Light gray */
+    }
+
+    .card h2 {
+      color: #1d3557; /* Deep blue */
+    }
+
+    .card p {
+      color: #457b9d; /* Muted blue */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <header>
+    <div class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <h1 class="text-3xl font-bold">Leather Backpack Collection</h1>
+      <p class="mt-2">Discover premium quality leather backpacks for every occasion.</p>
+    </div>
+  </header>
+
+  <!-- Product Grid -->
+  <main class="py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div id="dynamicCards" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"></div>
+      <div class="home">
+        <a href="index.html">BACK TO HOME</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="mt-10 py-6 text-center text-sm">
+    © 2025 Leather Goods Store. All rights reserved.
+  </footer>
+
+  <script>
+    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTc4L2_8U3gcFyOLJ6pUFxN6h8Ctr3X2PdwU8n9eXiC3-zQuWwpiXXxfwNNEorjC7TVCKIhHtP7QBUC/pub?gid=0&single=true&output=csv';
+
+    async function fetchCSVData(url) {
+      const response = await fetch(url);
+      const data = await response.text();
+      return parseCSV(data);
+    }
+
+    function parseCSV(data) {
+      const lines = data.split('\n').filter(line => line.trim() !== '');
+      const headers = lines[0].split(',').map(h => h.trim());
+      return lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim());
+        return headers.reduce((obj, header, i) => {
+          obj[header] = values[i];
+          return obj;
+        }, {});
+      });
+    }
+
+    function createCard(product) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${product.ImageURL}" alt="${product.Name}" class="w-full h-60 object-cover" />
+        <div class="p-4">
+          <h2 class="text-xl font-semibold">${product.Name}</h2>
+          <p class="mt-1">$${product.Price}</p>
+        </div>
+      `;
+      card.addEventListener('click', () => {
+        window.location.href = product.PageLink;
+      });
+      return card;
+    }
+
+    async function loadCards() {
+      const products = await fetchCSVData(sheetURL);
+      const grid = document.getElementById('dynamicCards');
+      products.forEach(product => {
+        const card = createCard(product);
+        grid.appendChild(card);
+      });
+    }
+
+    loadCards();
+  </script>
+
+</body>
+</html>
